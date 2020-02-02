@@ -1,0 +1,16 @@
+; dbconfig.ini.example
+[DEFAULT]
+HOST = db.test.com
+ID = test
+PASSWD = test123!t
+
+[reddit]
+DATABASE = reddit
+
+[twitter]
+DATABASE = twitter
+
+[youtube]
+DATABASE = youtube
+
+

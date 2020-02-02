@@ -1,0 +1,5 @@
+*.ini
+venv/
+*.log
+chromedriver
+__pycache__/
