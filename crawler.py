@@ -29,6 +29,8 @@ if __name__=='__main__':
 
     parser.add_argument('--keyword', dest='keyword', type=str, default='', required=True)
     parser.add_argument('--target', dest='target', type=str, default='', required=True)
+    parser.add_argument('--auth-id', dest='account', type=str, default='')
+    parser.add_argument('--auth-pw', dest='password', type=str, default='')
 
     args = parser.parse_args()
     target = args.target.lower()
@@ -40,15 +42,34 @@ if __name__=='__main__':
     id = config['DEFAULT']['ID']
     passwd = config['DEFAULT']['PASSWD']
 
+    API_config = configparser.ConfigParser()
+    API_config.read('API_Keys.ini')
+
+
     if target == 'twitter':
-        twitter = Twitter()
+        twitter = Twitter(API_config['twitter']['KEY'], API_config['twitter']['SECRET_KEY'],
+                          API_config['twitter']['ACCESS_TOKEN'], API_config['twitter']['ACCESS_TOKEN_SECRET'])
+
+
+        db = config[target]['DATABASE']
+        mysqlController = MysqlController(host, id, passwd, db)
+        # print(API_config['twitter']['KEY'])
+        # print(API_config['twitter']['SECRET_KEY'])
+
+        # twitter.oauth(API_config['twitter']['ACCESS_TOKEN'])
+        twitter.search(args.keyword)
+
+    elif target == 'reddit':
+        if not (args.account or args.password):
+            raise ValueError('Reddit needs to ID and PW for access API')
+
+        # DB connection
         db = config[target]['DATABASE']
         mysqlController = MysqlController(host, id, passwd, db)
 
-    elif target == 'reddit':
-        reddit = Reddit()
-        db = config[target]['DATABASE']
-        mysqlController = MysqlController(host, id, passwd, db)
+        # API connection
+        reddit = Reddit(API_config['reddit']['CLIENT_ID'], args.account, args.password, API_config['reddit']['KEY'])
+        reddit.extract_comments('3g1jfi')
 
     elif target == 'youtube':
         youtube = Youtube()

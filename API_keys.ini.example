@@ -1,0 +1,10 @@
+; APIs for crawling
+[reddit]
+CLIENT_ID = p-jcoLKBynTLew
+KEY = test
+
+[youtube]
+KEY = test2
+
+[twitter]
+KEY = test3

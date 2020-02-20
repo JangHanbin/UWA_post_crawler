@@ -12,7 +12,6 @@ chromedriver (https://chromedriver.chromium.org/downloads) must be located in pr
 
 ```
 pip3 -r requirements.txt
-
 ```
 
 
