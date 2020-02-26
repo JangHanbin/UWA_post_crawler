@@ -34,43 +34,72 @@ def parse_tweet(tweet):
 
 
 def parse_user(user):
-    pass
+    id = user.get('id')
+    id_str = user.get('id_str')
+    name = user.get('name')
+    screen_name = user.get('screen_name')
+    location = user.get('location')
+    url = user.get('url')
+    description = user.get('description')
+    protected = user.get('protected')
+    verified = user.get('verified')
+    followers_count = user.get('followers_count')
+    friends_count = user.get('friends_count')
+    listed_count = user.get('listed_count')
+    favourites_count = user.get('favourites_count')
+    statuses_count = user.get('status_count')
+    created_at = datetime.strptime(user.get('created_at'), '%a %b %d %H:%M:%S %z %Y')
+    profile_banner_url = user.get('profile_banner_url')
+    profile_image_url_https = user.get('profile_image_url_https')
+    default_profile = user.get('default_profile')
+    default_profile_image = user.get('default_profile_image')
+    withheld_in_countries = ', '.join((user.get('withheld_in_countires'))) if user.get('withheld_in_countires') else None
+    withheld_scope = user.get('withheld_scope')
+
+    return [id, id_str, name, screen_name, location, url, description, protected, verified, followers_count, friends_count, listed_count, favourites_count,
+            statuses_count, created_at, profile_banner_url, profile_image_url_https, default_profile, default_profile_image, withheld_in_countries, withheld_scope]
+
 
 def parse_coordinates(coordinate):
-    pass
+
 
 def parse_place(place):
     pass
 
 def parse_hashtag(hashtag):
-    pass
+
+    result = list()
+
+    for hash in hashtag:
+        result.append([str(hash.get('indices')).strip('[]'), hash.get('text')])
+
+    return result
 
 def parse_media(media):
     pass
 
 def parse_url(url):
-    pass
+    result = list()
+
+    for url_ in url:
+        result.append([url_.get('display_url'), url_.get('expanded_url'), str(url_.get('indices')).strip('[]'), url_.get('url')])
 
 def parse_user_mention(mention):
-    pass
+    result = list()
+
+    for mention_ in mention:
+        result.append([mention_.get('id'), str(mention_.get('indices')).strip('[]'), mention_.get('name'), mention_.get('screen_name')])
+
+    return result
 
 def parse_symbol(symbol):
-    pass
+    result = list()
 
+    for symbol_ in symbol:
+        result([str(symbol_.get('indices')).strip('[]'), symbol_.get('text')])
 
-def parse_response(res):
+    return result
 
-    tweet = parse_tweet(res)
-
-    return tweet
-
-
-    # if .get('full_text'):
-    #     print(i.get('full_text'))
-    # elif i.get('text'):
-    #     print(i.get('text'))
-    # else:
-    #     print('Something wrong')
 
 
 class Twitter:
@@ -135,10 +164,51 @@ class Twitter:
                 continue
 
             for tweet in json.loads(res.text)['statuses']:
-                self.insert_tweet(parse_tweet(tweet))
+
+                primary_key = int(tweet['id_str'])
+                try:
+                    tweet_ = parse_tweet(tweet)
+                    tweet_.append(keyword)
+                    tweet_.append(datetime.now())
+                    self.insert_tweet(tweet_)
+
+                except Exception as e:
+                    # logger
+                    print(e)
+
+                    user = parse_user(tweet['user'])
+                    user.insert(0,primary_key)
+
+                if tweet.get('entities'):
+                    if tweet['entities'].get('hashtags'):
+                        hashs= parse_hashtag(tweet['entities'].get('hashtags'))
+                        for hash in hashs:
+                            hash.insert(0, primary_key)
+                            self.insert_hashtag(hash)
+
+                    if tweet['entities'].get('symbols'):
+                        symbols = parse_symbol(tweet['entities'].get('symbols'))
+                        for symbol in symbols:
+                            symbol.insert(0, primary_key)
+                            self.insert_symbol(symbol)
 
 
-                # self.insert_tweet(test)
+                    if tweet['entities'].get('user_mentions'):
+                        mentions = parse_user_mention(tweet['entities'].get('user_mentions'))
+                        for mention in mentions:
+                            mention.insert(0, primary_key)
+                            self.insert_user_mention(mention)
+
+
+                    if tweet['entities'].get('urls'):
+                        urls = parse_url(tweet['entities'].get('urls'))
+                        for url in urls:
+                            url.insert(0, primary_key)
+                            self.insert_url(url)
+
+
+
+
 
             # Next
             next_qs = res.json()['search_metadata'].get('next_results')
@@ -155,5 +225,36 @@ class Twitter:
     def insert_tweet(self, tweet):
         query = db.insert(self.tweets).values(tweet)
         result_proxy = self.connection.execute(query)
-        # print(result_proxy)
-        # exit(199)
+
+    def insert_users(self, users):
+        query = db.insert(self.users).values(users)
+        result_proxy = self.connection.execute(query)
+
+    def insert_media(self, media):
+        query = db.insert(self.media).values(media)
+        result_proxy = self.connection.execute(query)
+
+    def insert_place(self, place):
+        query = db.insert(self.place).values(place)
+        result_proxy = self.connection.execute(query)
+
+    def insert_url(self, url):
+        query = db.insert(self.url).values(url)
+        result_proxy = self.connection.execute(query)
+
+    def insert_hashtag(self, hashtag):
+        query = db.insert(self.hashtag).values(hashtag)
+        result_proxy = self.connection.execute(query)
+
+    def insert_coordinates(self, coorinates):
+        query = db.insert(self.coordinates).values(coorinates)
+        result_proxy = self.connection.execute(query)
+
+    def insert_symbol(self, symbol):
+        query = db.insert(self.symbol).values(symbol)
+        result_proxy = self.connection.execute(query)
+
+    def insert_user_mention(self, mention):
+        query = db.insert(self.user_mention).values(mention)
+        result_proxy = self.connection.execute(query)
+
