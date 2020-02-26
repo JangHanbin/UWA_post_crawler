@@ -3,7 +3,6 @@ from selenium import webdriver
 import argparse
 import logging
 import configparser
-from dbconfig import MysqlController
 from reddit_crawler import Reddit
 from twitter_crawler import Twitter
 from youtube_craweler import Youtube
@@ -50,13 +49,10 @@ if __name__=='__main__':
         twitter = Twitter(API_config['twitter']['KEY'], API_config['twitter']['SECRET_KEY'],
                           API_config['twitter']['ACCESS_TOKEN'], API_config['twitter']['ACCESS_TOKEN_SECRET'])
 
-
         db = config[target]['DATABASE']
-        mysqlController = MysqlController(host, id, passwd, db)
-        # print(API_config['twitter']['KEY'])
-        # print(API_config['twitter']['SECRET_KEY'])
 
-        # twitter.oauth(API_config['twitter']['ACCESS_TOKEN'])
+        twitter.connect_to_db(id,passwd,host,db)
+
         twitter.search(args.keyword)
 
     elif target == 'reddit':
@@ -65,7 +61,7 @@ if __name__=='__main__':
 
         # DB connection
         db = config[target]['DATABASE']
-        mysqlController = MysqlController(host, id, passwd, db)
+
 
         # API connection
         reddit = Reddit(API_config['reddit']['CLIENT_ID'], args.account, args.password, API_config['reddit']['KEY'])
@@ -74,7 +70,7 @@ if __name__=='__main__':
     elif target == 'youtube':
         youtube = Youtube()
         db = config[target]['DATABASE']
-        mysqlController = MysqlController(host, id, passwd, db)
+
 
     else:
         raise ValueError('Target not supported.')
