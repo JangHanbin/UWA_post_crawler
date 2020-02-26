@@ -53,7 +53,7 @@ def parse_user(user):
     profile_image_url_https = user.get('profile_image_url_https')
     default_profile = user.get('default_profile')
     default_profile_image = user.get('default_profile_image')
-    withheld_in_countries = ', '.join((user.get('withheld_in_countires'))) if user.get('withheld_in_countires') else None
+    withheld_in_countries = ', '.join((user.get('withheld_in_countries'))) if user.get('withheld_in_countires') else None
     withheld_scope = user.get('withheld_scope')
 
     return [id, id_str, name, screen_name, location, url, description, protected, verified, followers_count, friends_count, listed_count, favourites_count,
@@ -61,7 +61,7 @@ def parse_user(user):
 
 
 def parse_coordinates(coordinate):
-
+    pass
 
 def parse_place(place):
     pass
