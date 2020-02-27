@@ -3,7 +3,7 @@ from selenium import webdriver
 import argparse
 import logging
 import configparser
-from reddit_crawler import Reddit
+# from reddit_crawler import Reddit
 from twitter_crawler import Twitter
 from youtube_craweler import Youtube
 
@@ -46,11 +46,11 @@ if __name__=='__main__':
 
 
     if target == 'twitter':
-        twitter = Twitter(API_config['twitter']['KEY'], API_config['twitter']['SECRET_KEY'],
-                          API_config['twitter']['ACCESS_TOKEN'], API_config['twitter']['ACCESS_TOKEN_SECRET'])
+        if not args.account or not args.password:
+            raise ValueError('Twitter must be given id, password.')
+        twitter = Twitter(args.account, args.password)
 
         db = config[target]['DATABASE']
-
         twitter.connect_to_db(id,passwd,host,db)
 
         twitter.search(args.keyword)
@@ -64,8 +64,8 @@ if __name__=='__main__':
 
 
         # API connection
-        reddit = Reddit(API_config['reddit']['CLIENT_ID'], args.account, args.password, API_config['reddit']['KEY'])
-        reddit.extract_comments('3g1jfi')
+        # reddit = Reddit(API_config['reddit']['CLIENT_ID'], args.account, args.password, API_config['reddit']['KEY'])
+        # reddit.extract_comments('3g1jfi')
 
     elif target == 'youtube':
         youtube = Youtube()

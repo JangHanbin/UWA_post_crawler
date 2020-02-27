@@ -1,4 +1,3 @@
-import twitter as tw
 import requests
 import json
 from urllib.parse import parse_qs
@@ -6,7 +5,7 @@ from time import sleep
 from datetime import datetime
 import sqlalchemy as db
 import logging
-
+from selenium import webdriver
 
 
 
@@ -141,8 +140,8 @@ def parse_symbol(symbol):
 
 class Twitter:
     # Will use Twitter APIs
-    def __init__(self, key, secret_key, token,token_secret):
-        self.api= tw.Api(key,secret_key,token,token_secret)
+    def __init__(self,id, passwd):
+        # self.api= tw.Api(key,secret_key,token,token_secret)
         self.logger = logging.getLogger('logger')
         self.logger.setLevel(logging.INFO)
         formatter = logging.Formatter('[ %(levelname)s | %(filename)s: %(lineno)s] %(asctime)s > %(message)s')
@@ -152,6 +151,10 @@ class Twitter:
         stream_handler.setFormatter(formatter)
         self.logger.addHandler(file_handler)
         self.logger.addHandler(stream_handler)
+        self.id = id
+        self.passwd = passwd
+        self.cookies = dict()
+        self.login(id,passwd)
 
     def connect_to_db(self, id,password, host, db_name):
         self.engine = db.create_engine('mysql+pymysql://{0}:{1}@{2}/{3}'.format(id,password,host,db_name))
@@ -174,17 +177,40 @@ class Twitter:
     def login(self,id, pw):
         pass
 
+        # to be defined
+        # options = webdriver.ChromeOptions()
+        # # options.add_argument('headless')
+        #
+        # with webdriver.Chrome('./chromedriver', options=options) as driver:
+        #     driver.implicitly_wait(60)
+        #     driver.get('https://www.twitter.com')
+        #     driver.find_element_by_name('session[username_or_email]').send_keys(id)
+        #     driver.find_element_by_name('session[password]').send_keys(pw)
+        #     driver.find_element_by_name('session[password]').submit()
+        #
+        #     for i in driver.find_elements_by_tag_name('input'):
+        #         i.send_keys('corona')
+        #         i.submit()
+        #
+        #
+        #
+        #     for cookie in driver.get_cookies():
+        #         self.cookies.update({cookie['name']:cookie['value']})
+
+
+
+
     def search(self, keyword):
 
-        if keyword[0]!='#':
-            keyword = '#'+keyword
+        # if keyword[0]!='#':
+        #     keyword = '#'+keyword
 
         headers = {
             'authority': 'api.twitter.com',
             'x-twitter-client-language': 'en',
-            'x-csrf-token': '4e41cb616906d561145e31b16a741bb0',
+            'x-csrf-token': '03dffd0f47d95b4c57ebe4febb5eb608',
             'authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA',
-            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36',
+            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36',
             'sec-fetch-dest': 'empty',
             'x-twitter-auth-type': 'OAuth2Session',
             'x-twitter-active-user': 'yes',
@@ -192,21 +218,33 @@ class Twitter:
             'origin': 'https://twitter.com',
             'sec-fetch-site': 'same-site',
             'sec-fetch-mode': 'cors',
-            'referer': 'https://twitter.com/search?q=fdfd&src=typed_query',
+            'referer': 'https://twitter.com/home',
             'accept-language': 'en-US,en;q=0.9,ko;q=0.8',
-            'cookie': '_ga=GA1.2.999650139.1529006038; personalization_id="v1_r5JOCwCltq+bTv6pA/cVuA=="; guest_id=v1%3A158064888176703553; kdt=hMKhExUoshMcQMm8rSm8dsQmQrnMLflLHqFd8PDF; auth_token=e3ee3c00afc206891c70afb7db86cae3233b46e1; dnt=1; csrf_same_site_set=1; rweb_optin=side_no_out; csrf_same_site=1; twid=u%3D1223956457223159813; _gid=GA1.2.1492470375.1582183405; tfw_exp=0; ct0=4e41cb616906d561145e31b16a741bb0; _gat=1',
+            'cookie': 'ct0=03dffd0f47d95b4c57ebe4febb5eb608; personalization_id="v1_j0AZi1zx8Du6rp1cuVy9gg=="; guest_id=v1%3A158282257475598345; _ga=GA1.2.1910892442.1582822576; _gid=GA1.2.1352091348.1582822576; gt=1233073366342356993; dnt=1; ads_prefs="HBESAAA="; kdt=im9KJgxfQbiqzkMzfUXZXH5tLURXD2uyq24CCNuz; remember_checked_on=1; auth_token=baa0aa64bb45cc004c9f3461dd369923b97950ce; csrf_same_site_set=1; rweb_optin=side_no_out; csrf_same_site=1; twid=u%3D1223956457223159813; _gat=1',
         }
 
 
         params = {'q': keyword, 'tweet_mode': 'extended', 'result_type': 'mixed', 'count': 200}
-
+        # print(headers['x-csrf-token'])
+        # print(self.cookies)
+        # headers['x-csrf-token'] = self.cookies['csrf']
+        # print(headers['x-csrf-token'])
 
         while True:
 
             res = requests.get('https://api.twitter.com/1.1/search/tweets.json', headers=headers, params=params)
             # print(res.text)
             if res.status_code != 200:
+                for error in res.json()['errors']:
+                    if error['code']==32:
+                        # re login to update tokens
+                        self.login(self.id, self.passwd)
+                        headers['x-csrf-token']=self.cookies['csrf']
+                        continue
+                self.logger.warning('Failed to access to api. wait 60 secs....')
+                print(res.text)
                 sleep(60)
+
                 continue
 
             for tweet in json.loads(res.text)['statuses']:
