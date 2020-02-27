@@ -133,7 +133,7 @@ def parse_symbol(symbol):
     result = list()
 
     for symbol_ in symbol:
-        result([str(symbol_.get('indices')).strip('[]'), symbol_.get('text')])
+        result.append([str(symbol_.get('indices')).strip('[]'), symbol_.get('text')])
 
     return result
 
