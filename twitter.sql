@@ -49,7 +49,7 @@ CREATE TABLE users (
 	withheld_scope	VARCHAR(300),
 
 	FOREIGN KEY (tweet_id)
-	REFERENCES tweets (id_str) ON UPDATE CASCADE
+	REFERENCES tweets (id_str) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 
@@ -59,7 +59,7 @@ CREATE TABLE coordinates (
 	type			VARCHAR(20),
 
 	FOREIGN KEY (tweet_id)
-	REFERENCES tweets (id_str) ON UPDATE CASCADE
+	REFERENCES tweets (id_str) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE place (
@@ -74,7 +74,7 @@ CREATE TABLE place (
 	bouding_box		VARCHAR(700),
 
 	FOREIGN KEY (tweet_id)
-	REFERENCES tweets (id_str) ON UPDATE CASCADE
+	REFERENCES tweets (id_str) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE hashtag (
@@ -83,7 +83,7 @@ CREATE TABLE hashtag (
 	text			VARCHAR(1200),
 
 	FOREIGN KEY (tweet_id)
-	REFERENCES tweets (id_str) ON UPDATE CASCADE
+	REFERENCES tweets (id_str) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE media (
@@ -97,10 +97,10 @@ CREATE TABLE media (
 	source_status_id	BIGINT,
 	type			VARCHAR(20),
 	url				VARCHAR(300),
-	data			BLOB,
+	data			LONGBLOB,
 
 	FOREIGN KEY (tweet_id)
-	REFERENCES tweets (id_str) ON UPDATE CASCADE
+	REFERENCES tweets (id_str) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 
@@ -112,7 +112,7 @@ CREATE TABLE url (
 	url				VARCHAR(300),
 
 	FOREIGN KEY (tweet_id)
-	REFERENCES tweets (id_str) ON UPDATE CASCADE
+	REFERENCES tweets (id_str) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE user_mention (
@@ -124,7 +124,7 @@ CREATE TABLE user_mention (
 
 
 	FOREIGN KEY (tweet_id)
-	REFERENCES tweets (id_str) ON UPDATE CASCADE
+	REFERENCES tweets (id_str) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 
@@ -134,7 +134,7 @@ CREATE TABLE symbol (
 	text		VARCHAR(500),
 
 	FOREIGN KEY (tweet_id)
-	REFERENCES tweets (id_str) ON UPDATE CASCADE
+	REFERENCES tweets (id_str) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 
