@@ -3,11 +3,11 @@ CREATE TABLE tweets (
 	id 				BIGINT,
 	created_at 		TIMESTAMP,
 	text			VARCHAR(500),
-	source 			VARCHAR(100),
+	source 			VARCHAR(1000),
 	truncated		BOOLEAN,
 	in_reply_to_status_id	BIGINT,
 	in_reply_to_user_id		BIGINT,
-	in_reply_to_screen_name	VARCHAR(100),
+	in_reply_to_screen_name	VARCHAR(1000),
 	quoted_status_id		BIGINT,
 	is_quote_status			BOOLEAN,
 	quote_count		INT,
@@ -30,9 +30,9 @@ CREATE TABLE users (
 	id_str			BIGINT,
 	name			VARCHAR(100),
 	screen_name		VARCHAR(100),
-	location		VARCHAR(100),
+	location		VARCHAR(1000),
 	url				VARCHAR(1000),
-	description		VARCHAR(500),
+	description		VARCHAR(1000),
 	protected		BOOLEAN,
 	verified		BOOLEAN,
 	followers_count	INT,
@@ -45,8 +45,8 @@ CREATE TABLE users (
 	profile_image_url_https	VARCHAR(1000),
 	default_profile	BOOLEAN,
 	default_profile_image	BOOLEAN,
-	withheld_in_countries	VARCHAR(300),
-	withheld_scope	VARCHAR(300),
+	withheld_in_countries	VARCHAR(1000),
+	withheld_scope	VARCHAR(1000),
 
 	FOREIGN KEY (tweet_id)
 	REFERENCES tweets (id_str) ON UPDATE CASCADE ON DELETE CASCADE
@@ -64,13 +64,13 @@ CREATE TABLE coordinates (
 
 CREATE TABLE place (
 	tweet_id		BIGINT,
-	id				VARCHAR(20),
+	id				VARCHAR(200),
 	url				VARCHAR(1000),
 	place_type		VARCHAR(100),
 	name			VARCHAR(100),
 	full_name		VARCHAR(300),
 	country_code	VARCHAR(20),
-	country			VARCHAR(40),
+	country			VARCHAR(400),
 	bouding_box		VARCHAR(700),
 
 	FOREIGN KEY (tweet_id)
@@ -119,8 +119,8 @@ CREATE TABLE user_mention (
 	tweet_id	BIGINT,
 	id			BIGINT,
 	indicies	VARCHAR(200),
-	name		VARCHAR(100),
-	screen_name	VARCHAR(200),
+	name		VARCHAR(1000),
+	screen_name	VARCHAR(1000),
 
 
 	FOREIGN KEY (tweet_id)
