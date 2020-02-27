@@ -29,9 +29,12 @@ def parse_tweet(tweet):
     possibly_sensitive = tweet.get('possibly_sensitive')
     filter_level = tweet.get('filter_level')
     lang = tweet.get('lang')
+    retweeted_status_id = int(tweet['retweeted_status'].get('id_str')) if tweet.get('retweeted_status') else None # if
+
 
     return [id_str, id, create_at, text, source, truncated, in_reply_to_status_id, in_reply_to_user_id, in_reply_to_screen_name, quoted_status_id,
-            is_quote_status, quote_count, reply_count, retweet_count, favorite_count, favorited, retweeted, possibly_sensitive, filter_level, lang]
+            is_quote_status, quote_count, reply_count, retweet_count, favorite_count, favorited, retweeted, possibly_sensitive, filter_level, lang,
+            retweeted_status_id]
 
 
 def parse_user(user):
@@ -265,6 +268,7 @@ class Twitter:
                         for media_ in media:
                             media_.insert(0, primary_key)
                             self.insert_media(media_)
+
 
 
             # Next

@@ -19,6 +19,7 @@ CREATE TABLE tweets (
 	possibly_sensitive		BOOLEAN,
 	filter_level	VARCHAR(100),
 	lang			VARCHAR(10),
+	retweeted_status_id		BIGINT,		
 	search_keyword	VARCHAR(500),
 	search_stamp		TIMESTAMP
 	);
