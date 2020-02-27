@@ -256,14 +256,14 @@ class Twitter:
                     if tweet['entities'].get('media'):
                         media = parse_media(tweet['entities'].get('media'))
                         for media_ in media:
-                            media.insert(0,primary_key)
+                            media_.insert(0,primary_key)
                             self.insert_media(media_)
 
                 if tweet.get('extended_entities'):
                     if tweet['extended_entities'].get('media'):
                         media = parse_media(tweet['extended_entities'].get('media'))
                         for media_ in media:
-                            media.insert(0, primary_key)
+                            media_.insert(0, primary_key)
                             self.insert_media(media_)
 
 
