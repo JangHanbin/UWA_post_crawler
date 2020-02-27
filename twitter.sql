@@ -54,7 +54,7 @@ CREATE TABLE users (
 
 CREATE TABLE coordinates (
 	tweet_id		BIGINT,
-	corrdinates		VARCHAR(200),
+	coordinates		VARCHAR(200),
 	type			VARCHAR(20),
 
 	FOREIGN KEY (tweet_id)
