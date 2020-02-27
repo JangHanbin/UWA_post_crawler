@@ -5,6 +5,10 @@ from urllib.parse import parse_qs
 from time import sleep
 from datetime import datetime
 import sqlalchemy as db
+import logging
+
+
+
 
 
 def parse_tweet(tweet):
@@ -65,10 +69,8 @@ def parse_user(user):
 
 
 def parse_coordinates(coordinate):
-    coordinates = str(coordinate.get('coordinates')).strip('[]')
-    type_ = coordinate.get('type')
+    return [str(coordinate.get('coordinates')).strip('[]'), coordinate.get('type')]
 
-    return [coordinates, type_]
 
 def parse_place(place):
     id = place.get('id')
@@ -79,7 +81,6 @@ def parse_place(place):
     country_code = place.get('country_code')
     country = place.get('country')
     bounding_box = str(place.get('bounding_box')) # convert to simple str.
-
 
     return [id, url, place_type, name, full_name, country_code, country, bounding_box]
 
@@ -118,6 +119,8 @@ def parse_url(url):
     for url_ in url:
         result.append([url_.get('display_url'), url_.get('expanded_url'), str(url_.get('indices')).strip('[]'), url_.get('url')])
 
+    return result
+
 def parse_user_mention(mention):
     result = list()
 
@@ -140,6 +143,15 @@ class Twitter:
     # Will use Twitter APIs
     def __init__(self, key, secret_key, token,token_secret):
         self.api= tw.Api(key,secret_key,token,token_secret)
+        self.logger = logging.getLogger('logger')
+        self.logger.setLevel(logging.INFO)
+        formatter = logging.Formatter('[ %(levelname)s | %(filename)s: %(lineno)s] %(asctime)s > %(message)s')
+        file_handler = logging.FileHandler('log.log')
+        file_handler.setFormatter(formatter)
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(formatter)
+        self.logger.addHandler(file_handler)
+        self.logger.addHandler(stream_handler)
 
     def connect_to_db(self, id,password, host, db_name):
         self.engine = db.create_engine('mysql+pymysql://{0}:{1}@{2}/{3}'.format(id,password,host,db_name))
@@ -205,29 +217,33 @@ class Twitter:
                     tweet_.append(keyword)
                     tweet_.append(datetime.now())
                     self.insert_tweet(tweet_)
+                    self.logger.info('Success to insert : {0}'.format(tweet_))
 
                 except Exception as e:
-                    # logger
-                    print(e)
+                    self.logger.exception('Tweet Insert Err')
+                    self.logger.exception(e)
+                    continue
 
-                    user = parse_user(tweet['user'])
-                    user.insert(0,primary_key)
-
+                user = parse_user(tweet['user'])
+                user.insert(0,primary_key)
 
                 if tweet.get('place'):
                     place = parse_place(tweet.get('place'))
                     place.insert(0,primary_key)
                     self.insert_place(place)
+                    self.logger.info('Success to insert : {0}'.format(place))
 
                 if tweet.get('user'):
                     user = parse_user(tweet.get('user'))
                     user.insert(0,primary_key)
                     self.insert_users(user)
-
+                    self.logger.info('Success to insert : {0}'.format(user))
 
                 if tweet.get('coordinates'):
                     coordinates = parse_coordinates(tweet.get('coordinates'))
-
+                    coordinates.insert(0, primary_key)
+                    self.insert_coordinates(coordinates)
+                    self.logger.info('Success to insert : {0}'.format(coordinates))
 
                 if tweet.get('entities'):
                     if tweet['entities'].get('hashtags'):
@@ -235,19 +251,21 @@ class Twitter:
                         for hash in hashs:
                             hash.insert(0, primary_key)
                             self.insert_hashtag(hash)
+                            self.logger.info('Success to insert : {0}'.format(hash))
 
                     if tweet['entities'].get('symbols'):
                         symbols = parse_symbol(tweet['entities'].get('symbols'))
                         for symbol in symbols:
                             symbol.insert(0, primary_key)
                             self.insert_symbol(symbol)
-
+                            self.logger.info('Success to insert : {0}'.format(symbol))
 
                     if tweet['entities'].get('user_mentions'):
                         mentions = parse_user_mention(tweet['entities'].get('user_mentions'))
                         for mention in mentions:
                             mention.insert(0, primary_key)
                             self.insert_user_mention(mention)
+                            self.logger.info('Success to insert : {0}'.format(mention))
 
 
                     if tweet['entities'].get('urls'):
@@ -255,12 +273,14 @@ class Twitter:
                         for url in urls:
                             url.insert(0, primary_key)
                             self.insert_url(url)
+                            self.logger.info('Success to insert : {0}'.format(url))
 
                     if tweet['entities'].get('media'):
                         media = parse_media(tweet['entities'].get('media'))
                         for media_ in media:
                             media_.insert(0,primary_key)
                             self.insert_media(media_)
+                            self.logger.info('Success to insert : {0}'.format(media_[:-1])) # except binary data
 
                 if tweet.get('extended_entities'):
                     if tweet['extended_entities'].get('media'):
@@ -268,6 +288,7 @@ class Twitter:
                         for media_ in media:
                             media_.insert(0, primary_key)
                             self.insert_media(media_)
+                            self.logger.info('Success to insert : {0}'.format(media_[:-1]))  # except binary data
 
 
 
