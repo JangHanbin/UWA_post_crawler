@@ -121,7 +121,6 @@ def parse_media(media):
                     'sec-fetch-mode': 'navigate',
                     'sec-fetch-user': '?1',
                     'accept-language': 'en-US,en;q=0.9,ko;q=0.8',
-                    'if-modified-since': 'Fri, 28 Feb 2020 00:21:44 GMT',
                 }
                 data = requests.get(media_url,headers=headers).content
                 break
