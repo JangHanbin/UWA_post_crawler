@@ -14,7 +14,9 @@ def parse_tweet(tweet):
 
     id_str = int(tweet.get('id_str'))
     id = tweet.get('id')
-    create_at = datetime.strptime(tweet.get('created_at'),'%a %b %d %H:%M:%S %z %Y')
+    created_at = datetime.strptime(tweet.get('created_at'),'%a %b %d %H:%M:%S %z %Y')
+    if created_at.timestamp() < 0:
+        created_at = None
     text = tweet['full_text'] if tweet.get('full_text') else tweet['text']
     source = tweet.get('source')
     truncated = tweet.get('truncated')
@@ -35,7 +37,7 @@ def parse_tweet(tweet):
     retweeted_status_id = int(tweet['retweeted_status'].get('id_str')) if tweet.get('retweeted_status') else None # if
 
 
-    return [id_str, id, create_at, text, source, truncated, in_reply_to_status_id, in_reply_to_user_id, in_reply_to_screen_name, quoted_status_id,
+    return [id_str, id, created_at, text, source, truncated, in_reply_to_status_id, in_reply_to_user_id, in_reply_to_screen_name, quoted_status_id,
             is_quote_status, quote_count, reply_count, retweet_count, favorite_count, favorited, retweeted, possibly_sensitive, filter_level, lang,
             retweeted_status_id]
 
@@ -56,6 +58,8 @@ def parse_user(user):
     favourites_count = user.get('favourites_count')
     statuses_count = user.get('status_count')
     created_at = datetime.strptime(user.get('created_at'), '%a %b %d %H:%M:%S %z %Y')
+    if created_at.timestamp() < 0:
+        created_at = None
     profile_banner_url = user.get('profile_banner_url')
     profile_image_url_https = user.get('profile_image_url_https')
     default_profile = user.get('default_profile')
