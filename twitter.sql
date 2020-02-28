@@ -31,7 +31,7 @@ CREATE TABLE users (
 	name			VARCHAR(100),
 	screen_name		VARCHAR(100),
 	location		VARCHAR(1000),
-	url				VARCHAR(1000),
+	url				TEXT,
 	description		VARCHAR(1000),
 	protected		BOOLEAN,
 	verified		BOOLEAN,
@@ -41,8 +41,8 @@ CREATE TABLE users (
 	favourites_count		INT,
 	statuses_count	INT,
 	created_at		TIMESTAMP,
-	profile_banner_url		VARCHAR(1000),
-	profile_image_url_https	VARCHAR(1000),
+	profile_banner_url		TEXT,
+	profile_image_url_https	TEXT,
 	default_profile	BOOLEAN,
 	default_profile_image	BOOLEAN,
 	withheld_in_countries	VARCHAR(1000),
@@ -65,7 +65,7 @@ CREATE TABLE coordinates (
 CREATE TABLE place (
 	tweet_id		BIGINT,
 	id				VARCHAR(200),
-	url				VARCHAR(1000),
+	url				TEXT,
 	place_type		VARCHAR(100),
 	name			VARCHAR(100),
 	full_name		VARCHAR(300),
@@ -88,15 +88,15 @@ CREATE TABLE hashtag (
 
 CREATE TABLE media (
 	tweet_id		BIGINT,
-	display_url		VARCHAR(1000),
-	expanded_url	VARCHAR(1200),
+	display_url		TEXT,
+	expanded_url	TEXT,
 	id				BIGINT,
 	indicies		VARCHAR(200),
-	media_url		VARCHAR(1000),
-	media_url_https	VARCHAR(1000),
+	media_url		TEXT,
+	media_url_https	TEXT,
 	source_status_id	BIGINT,
 	type			VARCHAR(20),
-	url				VARCHAR(1000),
+	url				TEXT,
 	data			LONGBLOB,
 
 	FOREIGN KEY (tweet_id)
@@ -106,10 +106,10 @@ CREATE TABLE media (
 
 CREATE TABLE url (
 	tweet_id		BIGINT,
-	display_url		VARCHAR(1000),
-	expanded_url	VARCHAR(1200),
+	display_url		TEXT,
+	expanded_url	TEXT,
 	indices			VARCHAR(200),
-	url				VARCHAR(1000),
+	url				TEXT,
 
 	FOREIGN KEY (tweet_id)
 	REFERENCES tweets (id_str) ON UPDATE CASCADE ON DELETE CASCADE
