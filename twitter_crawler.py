@@ -130,8 +130,9 @@ def parse_media(media):
                 break
             except:
                 data_retry_count+=1
+                logging.warning('Failed to get media data. wait for 60 secs... [{0}]'.format(data_retry_count + 1))
                 sleep(60)
-                logging.warning('Failed to get media data. wait for 60 secs... [{0}]'.format(data_retry_count+1))
+
 
 
         result.append([display_url, expanded_url, id, indices, media_url, media_url_https, source_status_id, type, url, data])
@@ -257,8 +258,11 @@ class Twitter:
         # print(headers['x-csrf-token'])
 
         while True:
-
-            res = requests.get('https://api.twitter.com/1.1/search/tweets.json', headers=headers, params=params)
+            try:
+                res = requests.get('https://api.twitter.com/1.1/search/tweets.json', headers=headers, params=params)
+            except:
+                self.logger.warning('Failed to access to api. wait 30 secs...')
+                sleep(30)
             # print(res.text)
             if res.status_code != 200:
                 for error in res.json()['errors']:
@@ -267,8 +271,7 @@ class Twitter:
                         self.login(self.id, self.passwd)
                         headers['x-csrf-token']=self.cookies['csrf']
                         continue
-                self.logger.warning('Failed to access to api. wait 60 secs....')
-                print(res.text)
+                self.logger.warning('Failed to access to api. wait 60 secs...')
                 sleep(60)
 
                 continue
