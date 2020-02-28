@@ -8,8 +8,6 @@ import logging
 from selenium import webdriver
 
 
-
-
 def parse_tweet(tweet):
 
     id_str = int(tweet.get('id_str'))
@@ -110,9 +108,9 @@ def parse_media(media):
         source_status_id = media_.get('source_status_id')
         type = media_.get('type')
         url = media_.get('url')
-
+        data = None
         data_retry_count=0
-        while data_retry_count<5:
+        while data_retry_count < 5:
             try:
                 headers = {
                     'authority': 'pbs.twimg.com',
@@ -130,7 +128,7 @@ def parse_media(media):
                 break
             except:
                 data_retry_count+=1
-                logging.warning('Failed to get media data. wait for 60 secs... [{0}]'.format(data_retry_count + 1))
+                logging.getLogger('logger').warning('Failed to get media data. wait for 60 secs... [{0}]'.format(data_retry_count + 1))
                 sleep(60)
 
 
@@ -180,8 +178,8 @@ class Twitter:
         self.logger.addHandler(stream_handler)
         self.id = id
         self.passwd = passwd
-        self.cookies = dict()
-        self.login(id,passwd)
+        # self.cookies = dict()
+        # self.login(id,passwd)
 
     def connect_to_db(self, id,password, host, db_name):
         self.engine = db.create_engine('mysql+pymysql://{0}:{1}@{2}/{3}'.format(id,password,host,db_name))
@@ -204,33 +202,8 @@ class Twitter:
     def login(self,id, pw):
         pass
 
-        # to be defined
-        # options = webdriver.ChromeOptions()
-        # # options.add_argument('headless')
-        #
-        # with webdriver.Chrome('./chromedriver', options=options) as driver:
-        #     driver.implicitly_wait(60)
-        #     driver.get('https://www.twitter.com')
-        #     driver.find_element_by_name('session[username_or_email]').send_keys(id)
-        #     driver.find_element_by_name('session[password]').send_keys(pw)
-        #     driver.find_element_by_name('session[password]').submit()
-        #
-        #     for i in driver.find_elements_by_tag_name('input'):
-        #         i.send_keys('corona')
-        #         i.submit()
-        #
-        #
-        #
-        #     for cookie in driver.get_cookies():
-        #         self.cookies.update({cookie['name']:cookie['value']})
-
-
-
-
     def search(self, keyword):
 
-        # if keyword[0]!='#':
-        #     keyword = '#'+keyword
 
         headers = {
             'authority': 'api.twitter.com',
@@ -249,23 +222,9 @@ class Twitter:
             'accept-language': 'en-US,en;q=0.9,ko;q=0.8',
             'cookie': 'ct0=03dffd0f47d95b4c57ebe4febb5eb608; personalization_id="v1_j0AZi1zx8Du6rp1cuVy9gg=="; guest_id=v1%3A158282257475598345; _ga=GA1.2.1910892442.1582822576; _gid=GA1.2.1352091348.1582822576; gt=1233073366342356993; dnt=1; ads_prefs="HBESAAA="; kdt=im9KJgxfQbiqzkMzfUXZXH5tLURXD2uyq24CCNuz; remember_checked_on=1; auth_token=baa0aa64bb45cc004c9f3461dd369923b97950ce; csrf_same_site_set=1; rweb_optin=side_no_out; csrf_same_site=1; twid=u%3D1223956457223159813; _gat=1',
         }
-        headers = {
-            'Authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Origin': 'https://twitter.com',
-            'Accept': '*/*',
-            'Referer': 'https://twitter.com/search?q=bebe&src=typed_query',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.4 Safari/605.1.15',
-            'x-twitter-auth-type': 'OAuth2Session',
-            'x-twitter-client-language': 'en',
-            'x-twitter-active-user': 'yes',
-            'x-csrf-token': '67391d2622e13c3a2634f338e03d92c1',
-        }
+
         params = {'q': keyword, 'tweet_mode': 'extended', 'result_type': 'mixed', 'count': 200}
-        # print(headers['x-csrf-token'])
-        # print(self.cookies)
-        # headers['x-csrf-token'] = self.cookies['csrf']
-        # print(headers['x-csrf-token'])
+
 
         while True:
             try:
@@ -274,7 +233,7 @@ class Twitter:
                 self.logger.warning('Failed to access to api. wait 30 secs...')
                 sleep(30)
                 continue
-            # print(res.text)
+
             if res.status_code != 200:
                 for error in res.json()['errors']:
                     if error['code']==32:
@@ -344,7 +303,6 @@ class Twitter:
                             mention.insert(0, primary_key)
                             self.insert_user_mention(mention)
                             self.logger.info('Success to insert : {0}'.format(mention))
-
 
                     if tweet['entities'].get('urls'):
                         urls = parse_url(tweet['entities'].get('urls'))
