@@ -30,6 +30,7 @@ if __name__=='__main__':
     parser.add_argument('--target', dest='target', type=str, default='', required=True)
     parser.add_argument('--auth-id', dest='account', type=str, default='')
     parser.add_argument('--auth-pw', dest='password', type=str, default='')
+    parser.add_argument('--headers', dest='headers', type=str, default='')
 
     args = parser.parse_args()
     target = args.target.lower()
@@ -46,13 +47,17 @@ if __name__=='__main__':
 
 
     if target == 'twitter':
-        if not args.account or not args.password:
-            raise ValueError('Twitter must be given id, password.')
+        if not args.account or not args.password or not args.headers:
+            raise ValueError('Twitter must be given id, password, headers information.')
+
         twitter = Twitter(args.account, args.password)
 
         db = config[target]['DATABASE']
         twitter.connect_to_db(id,passwd,host,db)
+        user_headers = configparser.ConfigParser()
+        user_headers.read('headers.ini')
 
+        twitter.set_request_headers(dict(user_headers._sections[args.headers]))
         twitter.search(args.keyword)
 
     elif target == 'reddit':

@@ -8,6 +8,8 @@ import logging
 from selenium import webdriver
 
 
+logger = None
+
 def parse_tweet(tweet):
 
     id_str = int(tweet.get('id_str'))
@@ -95,7 +97,7 @@ def parse_hashtag(hashtag):
 
     return result
 
-def parse_media(media):
+def parse_media(media, logger):
     result = list()
 
     for media_ in media:
@@ -127,15 +129,16 @@ def parse_media(media):
                 data = requests.get(media_url,headers=headers).content
                 break
             except:
-                data_retry_count+=1
-                logging.getLogger('logger').warning('Failed to get media data. wait for 60 secs... [{0}]'.format(data_retry_count + 1))
+                data_retry_count += 1
+                logger.warning('Failed to get media data. wait for 60 secs... [{0}]'.format(data_retry_count))
                 sleep(60)
-
 
 
         result.append([display_url, expanded_url, id, indices, media_url, media_url_https, source_status_id, type, url, data])
 
     return result
+
+
 
 def parse_url(url):
     result = list()
@@ -178,8 +181,14 @@ class Twitter:
         self.logger.addHandler(stream_handler)
         self.id = id
         self.passwd = passwd
+        self.headers = None
         # self.cookies = dict()
         # self.login(id,passwd)
+
+
+    def set_request_headers(self,headers):
+        self.headers = headers
+
 
     def connect_to_db(self, id,password, host, db_name):
         self.engine = db.create_engine('mysql+pymysql://{0}:{1}@{2}/{3}'.format(id,password,host,db_name))
@@ -204,31 +213,16 @@ class Twitter:
 
     def search(self, keyword):
 
-
-        headers = {
-            'authority': 'api.twitter.com',
-            'x-twitter-client-language': 'en',
-            'x-csrf-token': '03dffd0f47d95b4c57ebe4febb5eb608',
-            'authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA',
-            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36',
-            'sec-fetch-dest': 'empty',
-            'x-twitter-auth-type': 'OAuth2Session',
-            'x-twitter-active-user': 'yes',
-            'accept': '*/*',
-            'origin': 'https://twitter.com',
-            'sec-fetch-site': 'same-site',
-            'sec-fetch-mode': 'cors',
-            'referer': 'https://twitter.com/home',
-            'accept-language': 'en-US,en;q=0.9,ko;q=0.8',
-            'cookie': 'ct0=03dffd0f47d95b4c57ebe4febb5eb608; personalization_id="v1_j0AZi1zx8Du6rp1cuVy9gg=="; guest_id=v1%3A158282257475598345; _ga=GA1.2.1910892442.1582822576; _gid=GA1.2.1352091348.1582822576; gt=1233073366342356993; dnt=1; ads_prefs="HBESAAA="; kdt=im9KJgxfQbiqzkMzfUXZXH5tLURXD2uyq24CCNuz; remember_checked_on=1; auth_token=baa0aa64bb45cc004c9f3461dd369923b97950ce; csrf_same_site_set=1; rweb_optin=side_no_out; csrf_same_site=1; twid=u%3D1223956457223159813; _gat=1',
-        }
+        if not self.headers:
+            self.logger.exception('Request headers must be set.')
+            raise ValueError
 
         params = {'q': keyword, 'tweet_mode': 'extended', 'result_type': 'mixed', 'count': 200}
 
 
         while True:
             try:
-                res = requests.get('https://api.twitter.com/1.1/search/tweets.json', headers=headers, params=params)
+                res = requests.get('https://api.twitter.com/1.1/search/tweets.json', headers=self.headers, params=params)
             except:
                 self.logger.warning('Failed to access to api. wait 30 secs...')
                 sleep(30)
@@ -312,7 +306,7 @@ class Twitter:
                             self.logger.info('Success to insert : {0}'.format(url))
 
                     if tweet['entities'].get('media'):
-                        media = parse_media(tweet['entities'].get('media'))
+                        media = parse_media(tweet['entities'].get('media'), self.logger)
                         for media_ in media:
                             media_.insert(0,primary_key)
                             self.insert_media(media_)
@@ -320,13 +314,11 @@ class Twitter:
 
                 if tweet.get('extended_entities'):
                     if tweet['extended_entities'].get('media'):
-                        media = parse_media(tweet['extended_entities'].get('media'))
+                        media = parse_media(tweet['extended_entities'].get('media'), self.logger)
                         for media_ in media:
                             media_.insert(0, primary_key)
                             self.insert_media(media_)
                             self.logger.info('Success to insert : {0}'.format(media_[:-1]))  # except binary data
-
-
 
             # Next
             next_qs = res.json()['search_metadata'].get('next_results')
@@ -375,4 +367,5 @@ class Twitter:
     def insert_user_mention(self, mention):
         query = db.insert(self.user_mention).values(mention)
         result_proxy = self.connection.execute(query)
+
 

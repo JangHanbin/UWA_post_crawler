@@ -1,0 +1,7 @@
+;user1
+[user1]
+key = value
+
+;user2
+[user2]
+key = value
