@@ -15,7 +15,7 @@ def parse_tweet(tweet):
     id_str = int(tweet.get('id_str'))
     id = tweet.get('id')
     created_at = datetime.strptime(tweet.get('created_at'),'%a %b %d %H:%M:%S %z %Y')
-    if created_at.timestamp() < 0:
+    if created_at.timestamp() < datetime(2019, 1, 1):
         created_at = None
     text = tweet['full_text'] if tweet.get('full_text') else tweet['text']
     source = tweet.get('source')
@@ -58,7 +58,7 @@ def parse_user(user):
     favourites_count = user.get('favourites_count')
     statuses_count = user.get('status_count')
     created_at = datetime.strptime(user.get('created_at'), '%a %b %d %H:%M:%S %z %Y')
-    if created_at.timestamp() < 0:
+    if created_at.timestamp() < datetime(2019, 1, 1):
         created_at = None
     profile_banner_url = user.get('profile_banner_url')
     profile_image_url_https = user.get('profile_image_url_https')
@@ -219,7 +219,6 @@ class Twitter:
 
         params = {'q': keyword, 'tweet_mode': 'extended', 'result_type': 'mixed', 'count': 200}
 
-
         while True:
             try:
                 res = requests.get('https://api.twitter.com/1.1/search/tweets.json', headers=self.headers, params=params)
@@ -228,12 +227,12 @@ class Twitter:
                 sleep(30)
                 continue
 
+
             if res.status_code != 200:
                 for error in res.json()['errors']:
                     if error['code']==32:
-                        # re login to update tokens
-                        self.login(self.id, self.passwd)
-                        headers['x-csrf-token']=self.cookies['csrf']
+                        self.logger.exception('Authorization expired. Please update headers')
+                        raise ValueError
                         continue
                 self.logger.warning('Failed to access to api. wait 60 secs...')
                 sleep(60)
