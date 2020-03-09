@@ -7,6 +7,8 @@ import sqlalchemy as db
 import logging
 from selenium import webdriver
 
+# created_at is set pivot to 2019.01.01
+
 
 logger = None
 
@@ -15,7 +17,7 @@ def parse_tweet(tweet):
     id_str = int(tweet.get('id_str'))
     id = tweet.get('id')
     created_at = datetime.strptime(tweet.get('created_at'),'%a %b %d %H:%M:%S %z %Y')
-    if created_at.timestamp() < datetime(2019, 1, 1):
+    if created_at.timestamp() < datetime(2019, 1, 1).timestamp():
         created_at = None
     text = tweet['full_text'] if tweet.get('full_text') else tweet['text']
     source = tweet.get('source')
@@ -58,7 +60,7 @@ def parse_user(user):
     favourites_count = user.get('favourites_count')
     statuses_count = user.get('status_count')
     created_at = datetime.strptime(user.get('created_at'), '%a %b %d %H:%M:%S %z %Y')
-    if created_at.timestamp() < datetime(2019, 1, 1):
+    if created_at.timestamp() < datetime(2019, 1, 1).timestamp():
         created_at = None
     profile_banner_url = user.get('profile_banner_url')
     profile_image_url_https = user.get('profile_image_url_https')
