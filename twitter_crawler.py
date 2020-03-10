@@ -10,8 +10,6 @@ from selenium import webdriver
 # created_at pivot is set to 2019.01.01
 
 
-logger = None
-
 def parse_tweet(tweet):
 
     id_str = int(tweet.get('id_str'))
@@ -99,7 +97,9 @@ def parse_hashtag(hashtag):
 
     return result
 
-def parse_media(media, logger):
+def parse_media(media):
+
+
     result = list()
 
     for media_ in media:
@@ -132,7 +132,7 @@ def parse_media(media, logger):
                 break
             except:
                 data_retry_count += 1
-                logger.warning('Failed to get media data. wait for 60 secs... [{0}]'.format(data_retry_count))
+                logging.getLogger('logger').warning('Failed to get media data. wait for 60 secs... [{0}]'.format(data_retry_count))
                 sleep(60)
 
 
@@ -173,19 +173,22 @@ class Twitter:
     def __init__(self,id, passwd):
         # self.api= tw.Api(key,secret_key,token,token_secret)
         self.logger = logging.getLogger('logger')
-        self.logger.setLevel(logging.INFO)
-        formatter = logging.Formatter('[ %(levelname)s | %(filename)s: %(lineno)s] %(asctime)s > %(message)s')
-        file_handler = logging.FileHandler('log.log')
-        file_handler.setFormatter(formatter)
-        stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(formatter)
-        self.logger.addHandler(file_handler)
-        self.logger.addHandler(stream_handler)
+        if not self.logger.handlers:
+            self.logger.setLevel(logging.INFO)
+            formatter = logging.Formatter('[ %(levelname)s | %(filename)s: %(lineno)s] %(asctime)s > %(message)s')
+            file_handler = logging.FileHandler('log.log')
+            file_handler.setFormatter(formatter)
+            stream_handler = logging.StreamHandler()
+            stream_handler.setFormatter(formatter)
+            self.logger.addHandler(file_handler)
+            self.logger.addHandler(stream_handler)
         self.id = id
         self.passwd = passwd
         self.headers = None
         # self.cookies = dict()
         # self.login(id,passwd)
+        parse_media('test')
+
 
 
     def set_request_headers(self,headers):
@@ -307,7 +310,7 @@ class Twitter:
                             self.logger.info('Success to insert : {0}'.format(url))
 
                     if tweet['entities'].get('media'):
-                        media = parse_media(tweet['entities'].get('media'), self.logger)
+                        media = parse_media(tweet['entities'].get('media'))
                         for media_ in media:
                             media_.insert(0,primary_key)
                             self.insert_media(media_)
@@ -315,7 +318,7 @@ class Twitter:
 
                 if tweet.get('extended_entities'):
                     if tweet['extended_entities'].get('media'):
-                        media = parse_media(tweet['extended_entities'].get('media'), self.logger)
+                        media = parse_media(tweet['extended_entities'].get('media'))
                         for media_ in media:
                             media_.insert(0, primary_key)
                             self.insert_media(media_)
