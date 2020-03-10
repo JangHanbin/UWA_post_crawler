@@ -7,7 +7,7 @@ import sqlalchemy as db
 import logging
 from selenium import webdriver
 
-# created_at is set pivot to 2019.01.01
+# created_at pivot is set to 2019.01.01
 
 
 logger = None
@@ -193,7 +193,7 @@ class Twitter:
 
 
     def connect_to_db(self, id,password, host, db_name):
-        self.engine = db.create_engine('mysql+pymysql://{0}:{1}@{2}/{3}'.format(id,password,host,db_name))
+        self.engine = db.create_engine('mysql+pymysql://{0}:{1}@{2}/{3}'.format(id,password,host,db_name),  pool_pre_ping=True)
         self.connection = self.engine.connect()
         self.metadata = db.MetaData()
 
