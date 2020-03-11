@@ -5,7 +5,6 @@ from time import sleep
 from datetime import datetime
 import sqlalchemy as db
 import logging
-from selenium import webdriver
 
 # created_at pivot is set to 2019.01.01
 
@@ -245,17 +244,17 @@ class Twitter:
             for tweet in json.loads(res.text)['statuses']:
 
                 primary_key = int(tweet['id_str'])
-                try:
-                    tweet_ = parse_tweet(tweet)
-                    tweet_.append(keyword)
-                    tweet_.append(datetime.now())
-                    self.insert_tweet(tweet_)
-                    self.logger.info('Success to insert : {0}'.format(tweet_))
 
-                except Exception as e:
-                    self.logger.exception('Tweet Insert Err')
-                    self.logger.exception(e)
+                tweet_ = parse_tweet(tweet)
+                tweet_.append(keyword)
+                tweet_.append(datetime.now())
+                row_count =self.insert_tweet(tweet_)
+
+                if row_count == 0:
+                    self.logger.exception('tried to Insert Duplicate entry in Tweet')
                     continue
+
+                self.logger.info('Success to insert : {0}'.format(tweet_))
 
                 user = parse_user(tweet['user'])
                 user.insert(0,primary_key)
@@ -337,6 +336,7 @@ class Twitter:
     def insert_tweet(self, tweet):
         query = db.insert(self.tweets).values(tweet).prefix_with('IGNORE')
         result_proxy = self.connection.execute(query)
+        return result_proxy.rowcount
 
     def insert_users(self, users):
         query = db.insert(self.users).values(users)
