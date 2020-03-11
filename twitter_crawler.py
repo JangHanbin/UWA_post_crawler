@@ -335,7 +335,7 @@ class Twitter:
 
 
     def insert_tweet(self, tweet):
-        query = db.insert(self.tweets).values(tweet)
+        query = db.insert(self.tweets).values(tweet).prefix_with('IGNORE')
         result_proxy = self.connection.execute(query)
 
     def insert_users(self, users):
@@ -358,8 +358,8 @@ class Twitter:
         query = db.insert(self.hashtag).values(hashtag)
         result_proxy = self.connection.execute(query)
 
-    def insert_coordinates(self, coorinates):
-        query = db.insert(self.coordinates).values(coorinates)
+    def insert_coordinates(self, coordinates):
+        query = db.insert(self.coordinates).values(coordinates)
         result_proxy = self.connection.execute(query)
 
     def insert_symbol(self, symbol):
