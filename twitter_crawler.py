@@ -128,7 +128,7 @@ def parse_media(media):
                     'sec-fetch-user': '?1',
                     'accept-language': 'en-US,en;q=0.9,ko;q=0.8',
                 }
-                data = requests.get(media_url,headers=headers).content
+                data = requests.get(media_url,headers=headers, timeout=30).content
                 break
             except:
                 data_retry_count += 1
