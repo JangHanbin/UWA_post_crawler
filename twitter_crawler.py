@@ -141,7 +141,6 @@ def parse_media(media):
     return result
 
 
-
 def parse_url(url):
     result = list()
 
@@ -187,7 +186,6 @@ class Twitter:
         self.headers = None
         # self.cookies = dict()
         # self.login(id,passwd)
-        parse_media('test')
 
 
 
