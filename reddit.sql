@@ -38,7 +38,7 @@ CREATE TABLE post (
 
 CREATE TABLE subreddit (
 	post_id	VARCHAR(50),
-	id	VARCHAR(50) PRIMARY KEY,
+	id	VARCHAR(50),
 	allow_chat_post_creation	BOOLEAN,
 	is_chat_post_feature_enabled	BOOLEAN,
 	display_text	VARCHAR(200),
@@ -77,16 +77,13 @@ CREATE TABLE subreddit (
 
 
 CREATE TABLE subreddit_allow_post_types (
-	subreddit_id	VARCHAR(50),
+	subreddit_id	VARCHAR(50) PRIMARY KEY,
 	links	BOOLEAN,
 	images	BOOLEAN,
 	videos	BOOLEAN,
 	text	BOOLEAN,
 	spoiler	BOOLEAN,
-	pools	BOOLEAN,
-
-	FOREIGN KEY (subreddit_id)
-	REFERENCES subreddit (id) ON UPDATE CASCADE ON DELETE CASCADE
+	pools	BOOLEAN
 );
 
 
@@ -95,7 +92,7 @@ CREATE TABLE source (
 	display_text	TEXT,
 	url				TEXT,
 	outbound_url	TEXT,
-	outbound_expiration	TIMESTAMP.
+	outbound_expiration	TIMESTAMP,
 	outbound_created	TIMESTAMP,
 	
 	FOREIGN KEY (post_id)
