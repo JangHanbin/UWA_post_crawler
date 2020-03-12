@@ -87,6 +87,29 @@ CREATE TABLE subreddit_allow_post_types (
 );
 
 
+CREATE TABLE awarding (
+	post_id	VARCHAR(50),
+	award_type	VARCHAR(50),
+	coin_price	INT,
+	coint_reward	INT,
+	days_of_drip_extension	INT,
+	days_of_premium	INT,
+	description	TEXT,
+	icon_url	TEXT,
+	icon_width	INT,
+	icon_height	INT,
+	id	VARCHAR(100),
+	is_enabled	BOOLEAN,
+	is_new		BOOLEAN,
+	name	TEXT,
+	subreddit_count_reward	INT,
+	subreddit_id	VARCHAR(50),
+	count	INT,
+	
+	FOREIGN KEY (post_id)
+	REFERENCES post (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
 CREATE TABLE source (
 	post_id	VARCHAR(50),
 	display_text	TEXT,
