@@ -60,17 +60,6 @@ CREATE TABLE subreddit (
 );
 
 
-CREATE TABLE subreddit_allow_post_types (
-	subreddit_id	VARCHAR(50) PRIMARY KEY,
-	links	BOOLEAN,
-	images	BOOLEAN,
-	videos	BOOLEAN,
-	text	BOOLEAN,
-	spoiler	BOOLEAN,
-	pools	BOOLEAN
-);
-
-
 CREATE TABLE awarding (
 	post_id	VARCHAR(50),
 	award_type	VARCHAR(50),
