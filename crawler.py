@@ -77,7 +77,7 @@ if __name__=='__main__':
         after = ''
         while True:
             for keyword in args.keyword:
-                after = reddit.search(args.keyword, after)
+                after = reddit.search(keyword, after)
 
                 if not after:
                     after = ''
