@@ -3,7 +3,8 @@ from selenium import webdriver
 import argparse
 import logging
 import configparser
-# from reddit_crawler import Reddit
+from time import sleep
+from reddit_crawler import Reddit
 from twitter_crawler import Twitter
 from youtube_craweler import Youtube
 
@@ -61,15 +62,25 @@ if __name__=='__main__':
         twitter.search(args.keyword)
 
     elif target == 'reddit':
-        if not (args.account or args.password):
-            raise ValueError('Reddit needs to ID and PW for access API')
+
+        # if not (args.account or args.password):
+        #     raise ValueError('Reddit needs to ID and PW for access API')
 
         # DB connection
         db = config[target]['DATABASE']
 
-
         # API connection
-        # reddit = Reddit(API_config['reddit']['CLIENT_ID'], args.account, args.password, API_config['reddit']['KEY'])
+        reddit = Reddit()
+        reddit.connect_to_db(id,passwd,host,db)
+
+        after = ''
+        while True:
+            after = reddit.search(args.keyword, after)
+
+            if not after:
+                reddit.logger.info('Reached end of the Searching. Wait 600 Secs...')
+                sleep(600)
+
         # reddit.extract_comments('3g1jfi')
 
     elif target == 'youtube':

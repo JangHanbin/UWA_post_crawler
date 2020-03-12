@@ -1,4 +1,4 @@
-CREATE TABLE post (
+CREATE TABLE posts (
 	id VARCHAR(50) PRIMARY KEY,
 	num_comments INT,
 	created TIMESTAMP,
@@ -37,7 +37,7 @@ CREATE TABLE post (
 
 );
 
-CREATE TABLE subreddit (
+CREATE TABLE subreddits (
 	post_id	VARCHAR(50),
 	id	VARCHAR(50),
 	allow_chat_post_creation	BOOLEAN,
@@ -56,22 +56,23 @@ CREATE TABLE subreddit (
 	free_form_reports	BOOLEAN,
 
 	FOREIGN KEY (post_id)
-	REFERENCES post (id) ON UPDATE CASCADE ON DELETE CASCADE
+	REFERENCES posts (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 
-CREATE TABLE awarding (
+CREATE TABLE awardings (
 	post_id	VARCHAR(50),
 	award_type	VARCHAR(50),
+	award_sub_type	VARCHAR(50),
 	coin_price	INT,
-	coint_reward	INT,
+	coin_reward	INT,
 	days_of_drip_extension	INT,
 	days_of_premium	INT,
 	description	TEXT,
-	icon_url	TEXT,
+	icon	LONGBLOB,
 	icon_width	INT,
 	icon_height	INT,
-	id	VARCHAR(100),
+	id	TEXT,
 	is_enabled	BOOLEAN,
 	is_new		BOOLEAN,
 	name	TEXT,
@@ -80,10 +81,10 @@ CREATE TABLE awarding (
 	count	INT,
 	
 	FOREIGN KEY (post_id)
-	REFERENCES post (id) ON UPDATE CASCADE ON DELETE CASCADE
+	REFERENCES posts (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-CREATE TABLE source (
+CREATE TABLE sources (
 	post_id	VARCHAR(50),
 	display_text	TEXT,
 	url				TEXT,
@@ -92,7 +93,7 @@ CREATE TABLE source (
 	outbound_created	TIMESTAMP,
 	
 	FOREIGN KEY (post_id)
-	REFERENCES post (id) ON UPDATE CASCADE ON DELETE CASCADE
+	REFERENCES posts (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 
@@ -101,7 +102,7 @@ CREATE TABLE media (
 	type	VARCHAR(100),
 
 	FOREIGN KEY (post_id)
-	REFERENCES post (id) ON UPDATE CASCADE ON DELETE CASCADE
+	REFERENCES posts (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE richtext (
@@ -110,7 +111,7 @@ CREATE TABLE richtext (
 	converted_text	TEXT,
 
 	FOREIGN KEY (post_id)
-	REFERENCES post (id) ON UPDATE CASCADE ON DELETE CASCADE
+	REFERENCES posts (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE  gifvideo (
@@ -121,7 +122,7 @@ CREATE TABLE  gifvideo (
 	height	INT,
 
 	FOREIGN KEY (post_id)
-	REFERENCES post (id) ON UPDATE CASCADE ON DELETE CASCADE
+	REFERENCES posts (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 
@@ -133,7 +134,7 @@ CREATE TABLE embed (
 	provider	TEXT,
 
 	FOREIGN KEY (post_id)
-	REFERENCES post (id) ON UPDATE CASCADE ON DELETE CASCADE
+	REFERENCES posts (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE image (
@@ -144,7 +145,7 @@ CREATE TABLE image (
 	height	INT,
 
 	FOREIGN KEY (post_id)
-	REFERENCES post (id) ON UPDATE CASCADE ON DELETE CASCADE
+	REFERENCES posts (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 
