@@ -18,7 +18,6 @@ def get_content(url):
             sleep(60)
 
 
-
     return content
 
 

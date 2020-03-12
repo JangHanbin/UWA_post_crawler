@@ -6,6 +6,24 @@ from datetime import datetime
 import sqlalchemy as db
 import logging
 
+
+def get_content(url):
+
+    content = None
+    retry_count = 0
+    while retry_count < 5:
+        try:
+            content = requests.get(url, timeout=30).content
+            break
+        except Exception as e:
+            retry_count += 1
+            logging.getLogger('logger').warning('Failed to get content data. wait for 60 secs... [{0}]'.format(retry_count))
+            sleep(60)
+
+    return content
+
+
+
 # created_at pivot is set to 2019.01.01
 
 
@@ -111,28 +129,7 @@ def parse_media(media):
         source_status_id = media_.get('source_status_id')
         type = media_.get('type')
         url = media_.get('url')
-        data = None
-        data_retry_count=0
-        while data_retry_count < 5:
-            try:
-                headers = {
-                    'authority': 'pbs.twimg.com',
-                    'cache-control': 'max-age=0',
-                    'upgrade-insecure-requests': '1',
-                    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36',
-                    'sec-fetch-dest': 'document',
-                    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-                    'sec-fetch-site': 'none',
-                    'sec-fetch-mode': 'navigate',
-                    'sec-fetch-user': '?1',
-                    'accept-language': 'en-US,en;q=0.9,ko;q=0.8',
-                }
-                data = requests.get(media_url,headers=headers, timeout=30).content
-                break
-            except:
-                data_retry_count += 1
-                logging.getLogger('logger').warning('Failed to get media data. wait for 60 secs... [{0}]'.format(data_retry_count))
-                sleep(60)
+        data = get_content(media_url) if media_url else None
 
 
         result.append([display_url, expanded_url, id, indices, media_url, media_url_https, source_status_id, type, url, data])
