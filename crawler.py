@@ -74,15 +74,16 @@ if __name__=='__main__':
         reddit = Reddit()
         reddit.connect_to_db(id,passwd,host,db)
 
-        after = ''
         while True:
             for keyword in args.keyword:
-                after = reddit.search(keyword, after)
+                after = ''
+                while True:
+                    after = reddit.search(keyword, after)
 
-                if not after:
-                    after = ''
-                    reddit.logger.info('Reached end of the Searching. Wait 600 Secs...')
-                    sleep(600)
+                    if not after:
+                        break
+            reddit.logger.info('Reached end of the Searching. Wait 600 Secs...')
+            sleep(600)
 
         # reddit.extract_comments('3g1jfi')
 
