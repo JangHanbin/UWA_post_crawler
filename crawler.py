@@ -27,7 +27,7 @@ if __name__=='__main__':
 
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
 
-    parser.add_argument('--keyword', dest='keyword', type=str, default='', required=True)
+    parser.add_argument('--keyword', dest='keyword', type=str, default='', nargs='+', required=True)
     parser.add_argument('--target', dest='target', type=str, default='', required=True)
     parser.add_argument('--auth-id', dest='account', type=str, default='')
     parser.add_argument('--auth-pw', dest='password', type=str, default='')
@@ -35,6 +35,7 @@ if __name__=='__main__':
 
     args = parser.parse_args()
     target = args.target.lower()
+
 
     config = configparser.ConfigParser()
     config.read('dbconfig.ini')
@@ -75,11 +76,13 @@ if __name__=='__main__':
 
         after = ''
         while True:
-            after = reddit.search(args.keyword, after)
+            for keyword in args.keyword:
+                after = reddit.search(args.keyword, after)
 
-            if not after:
-                reddit.logger.info('Reached end of the Searching. Wait 600 Secs...')
-                sleep(600)
+                if not after:
+                    after = ''
+                    reddit.logger.info('Reached end of the Searching. Wait 600 Secs...')
+                    sleep(600)
 
         # reddit.extract_comments('3g1jfi')
 
