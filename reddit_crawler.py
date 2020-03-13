@@ -145,7 +145,7 @@ def parse_media(media):
     return [type, result]
 
 
-def parse_rtjson(line):
+def parse_rtjson(line,document):
 
     converted_text = str()
 
@@ -157,15 +157,20 @@ def parse_rtjson(line):
             converted_text+= '\t' + parse_rtjson(words['c']) # recursive
 
         else:
-            if words['e'] == 'text':
-                converted_text += words['t']
-            if words['e'] == 'link':
-                converted_text += '{0} ({1})'.format(words['t'], words['u'])
-            if words['e'] == 'r/':
-                if words['l']:
-                    converted_text += 'r/{0} (https://reddit.com/r/{0})'.format(words['t'])
-                else:
-                    converted_text += 'r/{0}'.format(words['t'])
+            try:
+                if words['e'] == 'text':
+                    converted_text += words['t']
+                if words['e'] == 'link':
+                    converted_text += '{0} ({1})'.format(words['t'], words['u'])
+                if words['e'] == 'r/':
+                    if words['l']:
+                        converted_text += 'r/{0} (https://reddit.com/r/{0})'.format(words['t'])
+                    else:
+                        converted_text += 'r/{0}'.format(words['t'])
+
+            except :
+                logging.getLogger('logger').exception('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@{0}'.format(document))
+                logging.getLogger('logger').exception('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@{0}'.format(line))
 
     return converted_text
 
@@ -177,7 +182,7 @@ def parse_richtext(document):
 
     for line in document:
         if line.get('c'):
-            converted_text += parse_rtjson(line['c']) + '\n'
+            converted_text += parse_rtjson(line['c'],document) + '\n'
 
     return [origin_json, converted_text]
 
