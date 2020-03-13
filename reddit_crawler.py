@@ -150,14 +150,14 @@ def parse_rtjson(line,document):
     converted_text = str()
 
     for words in line:
-        if isinstance(words, list):
-            converted_text+= parse_rtjson(words, document) + '\n'
+        try:
+            if isinstance(words, list):
+                converted_text+= parse_rtjson(words, document) + '\n'
 
-        elif words.get('c'):
-            converted_text+= '\t' + parse_rtjson(words['c'], document) # recursive
+            elif words.get('c'):
+                converted_text+= '\t' + parse_rtjson(words['c'], document) # recursive
 
-        else:
-            try:
+            else:
                 if words['e'] == 'text':
                     converted_text += words['t']
                 if words['e'] == 'link':
@@ -167,10 +167,10 @@ def parse_rtjson(line,document):
                         converted_text += 'r/{0} (https://reddit.com/r/{0})'.format(words['t'])
                     else:
                         converted_text += 'r/{0}'.format(words['t'])
-
-            except :
-                logging.getLogger('logger').exception('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@{0}'.format(document))
-                logging.getLogger('logger').exception('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@{0}'.format(line))
+        except :
+            logging.getLogger('logger').exception('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@{0}'.format(document))
+            logging.getLogger('logger').exception('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@{0}'.format(line))
+            exit(99)
 
     return converted_text
 
