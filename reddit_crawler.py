@@ -151,8 +151,12 @@ def parse_rtjson(line):
 
     for words in line:
         # print('WORDS : {0}'.format(words))
-        if words.get('c'):
-            converted_text+= '\t' + parse_rtjson(words['c']) # recursive
+        try:
+            if words.get('c'):
+                converted_text+= '\t' + parse_rtjson(words['c']) # recursive
+        except:
+            logging.getLogger('logger').exception(words)
+            exit(11)
 
         else:
             if words['e'] == 'text':
