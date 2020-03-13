@@ -145,18 +145,16 @@ def parse_media(media):
     return [type, result]
 
 
-def parse_rtjson(line, document):
+def parse_rtjson(line):
 
     converted_text = str()
 
     for words in line:
-        # print('WORDS : {0}'.format(words))
-        try:
-            if words.get('c'):
-                converted_text+= '\t' + parse_rtjson(words['c']) # recursive
-        except:
-            logging.getLogger('logger').exception('@@@@@@@ {0}'.format(document))
-            exit(11)
+        if isinstance(words, list):
+            converted_text+= parse_rtjson(words) + '\n'
+
+        elif words.get('c'):
+            converted_text+= '\t' + parse_rtjson(words['c']) # recursive
 
         else:
             if words['e'] == 'text':
@@ -179,9 +177,10 @@ def parse_richtext(document):
 
     for line in document:
         if line.get('c'):
-            converted_text += parse_rtjson(line['c'], document) + '\n'
+            converted_text += parse_rtjson(line['c']) + '\n'
 
     return [origin_json, converted_text]
+
 
 
 def parse_gifvideo(media):
