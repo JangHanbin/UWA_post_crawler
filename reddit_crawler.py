@@ -173,7 +173,8 @@ def parse_richtext(document):
     origin_json = str(document)
     converted_text = str()
     for line in document:
-        converted_text += parse_rtjson(line['c']) + '\n'
+        if line.get('c'):
+            converted_text += parse_rtjson(line['c']) + '\n'
 
     return [origin_json, converted_text]
 
