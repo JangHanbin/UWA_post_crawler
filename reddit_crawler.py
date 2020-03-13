@@ -145,7 +145,7 @@ def parse_media(media):
     return [type, result]
 
 
-def parse_rtjson(line):
+def parse_rtjson(line, document):
 
     converted_text = str()
 
@@ -155,7 +155,7 @@ def parse_rtjson(line):
             if words.get('c'):
                 converted_text+= '\t' + parse_rtjson(words['c']) # recursive
         except:
-            logging.getLogger('logger').exception(words)
+            logging.getLogger('logger').exception('@@@@@@@ {0}'.format(document))
             exit(11)
 
         else:
@@ -176,9 +176,10 @@ def parse_richtext(document):
 
     origin_json = str(document)
     converted_text = str()
+
     for line in document:
         if line.get('c'):
-            converted_text += parse_rtjson(line['c']) + '\n'
+            converted_text += parse_rtjson(line['c'], document) + '\n'
 
     return [origin_json, converted_text]
 
