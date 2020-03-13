@@ -151,10 +151,10 @@ def parse_rtjson(line,document):
 
     for words in line:
         if isinstance(words, list):
-            converted_text+= parse_rtjson(words) + '\n'
+            converted_text+= parse_rtjson(words, document) + '\n'
 
         elif words.get('c'):
-            converted_text+= '\t' + parse_rtjson(words['c']) # recursive
+            converted_text+= '\t' + parse_rtjson(words['c'], document) # recursive
 
         else:
             try:
@@ -182,7 +182,7 @@ def parse_richtext(document):
 
     for line in document:
         if line.get('c'):
-            converted_text += parse_rtjson(line['c'],document) + '\n'
+            converted_text += parse_rtjson(line['c'], document) + '\n'
 
     return [origin_json, converted_text]
 
