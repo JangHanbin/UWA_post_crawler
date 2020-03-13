@@ -148,4 +148,19 @@ CREATE TABLE image (
 	REFERENCES posts (id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+CREATE TABLE video (
+	post_id VARCHAR(50),
+	hls_url	TEXT,
+	dash_url	TEXT,
+	is_gif	BOOLEAN,
+	scrubber_thumb_source	TEXT,
+	poster_url	TEXT,
+	poster	LONGBLOB,
+	width	INT,
+	height	INT,
+	
+	FOREIGN KEY (post_id)
+	REFERENCES posts (id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
 

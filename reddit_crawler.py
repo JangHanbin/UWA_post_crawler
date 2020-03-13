@@ -128,7 +128,7 @@ def parse_media(media):
     type = media['type']
 
     if type =='rtjson':
-        result = parse_richtext(media['richtextContent']['document'])
+        result = [str(media['richtextContent']['document']), parse_richtext(media['richtextContent']['document'])]
 
     elif type == 'gifvideo':
         result = parse_gifvideo(media)
@@ -141,23 +141,19 @@ def parse_media(media):
 
     else:
         logging.getLogger('logger').warning('Not defined type : {0}'.format(type))
+        logging.getLogger('logger').warning('Not defined type : {0}'.format(media))
 
     return [type, result]
 
-
-def parse_rtjson(line,document):
+def parse_rtjson(line):
 
     converted_text = str()
 
     for words in line:
-        try:
-            if isinstance(words, list):
-                converted_text+= parse_rtjson(words, document) + '\n'
-
-            elif words.get('c'):
-                converted_text+= '\t' + parse_rtjson(words['c'], document) # recursive
-
-            else:
+        if words.get('c'):
+            converted_text+= '\t' + parse_rtjson(words['c']) # recursive
+        else:
+            if words.get('e'):
                 if words['e'] == 'text':
                     converted_text += words['t']
                 if words['e'] == 'link':
@@ -167,25 +163,20 @@ def parse_rtjson(line,document):
                         converted_text += 'r/{0} (https://reddit.com/r/{0})'.format(words['t'])
                     else:
                         converted_text += 'r/{0}'.format(words['t'])
-        except :
-            logging.getLogger('logger').exception('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@{0}'.format(document))
-            logging.getLogger('logger').exception('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@{0}'.format(line))
-            exit(99)
 
     return converted_text
 
 
 def parse_richtext(document):
-
-    origin_json = str(document)
     converted_text = str()
 
-    for line in document:
-        if line.get('c'):
-            converted_text += parse_rtjson(line['c'], document) + '\n'
+    for idx, line in enumerate(document):
+        if isinstance(line, list):
+            converted_text += parse_rtjson(line) + '\n'
+        elif line.get('c'):
+            converted_text += parse_rtjson(line['c']) + '\n'
 
-    return [origin_json, converted_text]
-
+    return converted_text
 
 
 def parse_gifvideo(media):
@@ -217,6 +208,19 @@ def parse_image(media):
 
     return [content_url, content, width, height]
 
+def parse_video(media):
+
+    hls_url = media['hlsUrl']
+    dash_url = media['dashUrl']
+    is_gif = media['isGif']
+    scrubber_thumb_source = media['scrubberThumbSource']
+    poster_url = media['posterUrl']
+    poster = get_content(media['posterUrl']) if media['posterUrl'] else None
+    width = media['width']
+    height = media['height']
+
+    return [hls_url, dash_url, is_gif, scrubber_thumb_source, poster_url, poster, width, height]
+
 
 class Reddit:
     def __init__(self):
@@ -247,6 +251,7 @@ class Reddit:
         self.gifvideo = db.Table('gifvideo', self.metadata, autoload=True, autoload_with=self.engine)
         self.embed = db.Table('embed', self.metadata, autoload=True, autoload_with=self.engine)
         self.image = db.Table('image', self.metadata, autoload=True, autoload_with=self.engine)
+        self.video = db.Table('video', self.metadata, autoload=True, autoload_with=self.engine)
 
 
 
@@ -345,6 +350,12 @@ class Reddit:
                     self.insert_image(image)
                     self.logger.info('Success to insert : {0}'.format(image))
 
+                elif type == 'video':
+                    video = media[1]
+                    video.insert(0, post_id)
+                    self.insert_video(video)
+                    self.logger.info('Success to insert : {0}'.format(video))
+
         return res.json()['tokens']['posts']
 
     def insert_post(self, post):
@@ -392,3 +403,7 @@ class Reddit:
         result_proxy = self.connection.execute(query)
         return result_proxy.rowcount
 
+    def insert_video(self, video):
+        query = db.insert(self.video).values(video)
+        result_proxy = self.connection.execute(query)
+        return result_proxy.rowcount
