@@ -170,12 +170,16 @@ def parse_rtjson(line):
 
 
 def parse_richtext(document):
-    # print(document)
+
     converted_text = str()
 
     for idx, line in enumerate(document):
         if line.get('c'):
-            converted_text += parse_rtjson(line['c'])
+            try:
+                converted_text += parse_rtjson(line['c'])
+            except Exception as e:
+                logging.getLogger('logger').exception(e)
+                logging.getLogger('logger').exception(document)
 
     return converted_text
 
