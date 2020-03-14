@@ -148,33 +148,34 @@ def parse_media(media):
 def parse_rtjson(line):
 
     converted_text = str()
-
     for words in line:
-        if words.get('c'):
-            converted_text+= '\t' + parse_rtjson(words['c']) # recursive
-        else:
-            if words.get('e'):
-                if words['e'] == 'text':
-                    converted_text += words['t']
-                if words['e'] == 'link':
-                    converted_text += '{0} ({1})'.format(words['t'], words['u'])
-                if words['e'] == 'r/':
-                    if words['l']:
-                        converted_text += 'r/{0} (https://reddit.com/r/{0})'.format(words['t'])
-                    else:
-                        converted_text += 'r/{0}'.format(words['t'])
+        if isinstance(words, list):
+            converted_text += '\t' + parse_richtext(words)
+        elif words.get('c'):
+            # print(words)
+            converted_text += '\t' + parse_rtjson(words['c'])
+        elif words.get('e'):
+            if words['e'] == 'text':
+                converted_text += words['t']
+            elif words['e'] == 'link':
+                converted_text += '{0} ({1})'.format(words['t'], words['u'])
+            elif words['e'] == 'r/':
+                if words['l']:
+                    converted_text += 'r/{0} (https://reddit.com/r/{0})'.format(words['t'])
+                else:
+                    converted_text += 'r/{0}'.format(words['t'])
 
-    return converted_text
+    return converted_text + '\n'
+
 
 
 def parse_richtext(document):
+    # print(document)
     converted_text = str()
 
     for idx, line in enumerate(document):
-        if isinstance(line, list):
-            converted_text += parse_rtjson(line) + '\n'
-        elif line.get('c'):
-            converted_text += parse_rtjson(line['c']) + '\n'
+        if line.get('c'):
+            converted_text += parse_rtjson(line['c'])
 
     return converted_text
 
