@@ -128,7 +128,12 @@ def parse_media(media):
     type = media['type']
 
     if type =='rtjson':
-        result = [str(media['richtextContent']['document']), parse_richtext(media['richtextContent']['document'])]
+        try:
+            result = [str(media['richtextContent']['document']), parse_richtext(media['richtextContent']['document'])]
+        except:
+            result = [str(media['richtextContent']['document'])]
+            logging.getLogger('logger').exception('richtext parsing error. returned just original richtext json.')
+            logging.getLogger('logger').exception('original json : {0}'.format(str(media['richtextContent']['document'])))
 
     elif type == 'gifvideo':
         result = parse_gifvideo(media)
@@ -292,6 +297,8 @@ class Reddit:
         )
 
         res = requests.get('https://gateway.reddit.com/desktopapi/v1/search', headers=headers, params=params)
+        if res.status_code != 200:
+            return None
 
         for post_id, post_content in res.json()['posts'].items():
 
