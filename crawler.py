@@ -1,5 +1,3 @@
-import requests
-from selenium import webdriver
 import argparse
 import logging
 import configparser

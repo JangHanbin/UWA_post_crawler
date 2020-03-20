@@ -312,11 +312,12 @@ class Reddit:
 
 
 
-            post_subreddit = res.json()['subreddits'][post_content['belongsTo']['id']]
-            subreddit = parse_subreddit(post_subreddit)
-            subreddit.insert(0, post_id)  # add pk
-            self.insert_subreddit(subreddit)
-            self.logger.info('Success to insert : {0}'.format(subreddit))
+            post_subreddit = res.json()['subreddits'][post_content['belongsTo']['id']] if res.json()['subreddits'].get(post_content['belongsTo']['id']) else None
+            if post_subreddit:
+                subreddit = parse_subreddit(post_subreddit)
+                subreddit.insert(0, post_id)  # add pk
+                self.insert_subreddit(subreddit)
+                self.logger.info('Success to insert : {0}'.format(subreddit))
 
             if post_content.get('allAwardings'):
                 for award in post_content['allAwardings']:
