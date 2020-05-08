@@ -38,11 +38,9 @@ There are some options for running.  more detail options can see by typing `--he
 
 #### Twitter
 
-For crawling Twitter. you need a valid account's headers information for each keyword.
+For crawling Twitter. you need a valid account's headers information for each keyword. then you indicate header information using `-headers` option (e.g., `python cralwer.py --keyword coronavirus --target twitter --headers user1` )
 
-You can update header file in `headers.ini` file.
-
-
+You can update header file in `headers.ini` file.  
 
 ## Authors
 
